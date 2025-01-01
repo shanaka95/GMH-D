@@ -208,31 +208,34 @@ def process_sync_tracking(detection_result: HandLandmarkerResult, bgr_image, dep
         # apply GMHD and save tracking
         joints_GMHD =GMHD_estimation(hand_landmarks, depth_image)
         hands_GMHD.append(GMHDHand(joints_GMHD, handedness))
+
+        if cfg['visualize']=='yes':
         # Draw the hand landmarks
-        hand_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
-        hand_landmarks_proto.landmark.extend([
-          landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in hand_landmarks
-        ])
+            hand_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
+            hand_landmarks_proto.landmark.extend([
+              landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in hand_landmarks
+            ])
 
-        solutions.drawing_utils.draw_landmarks(
-          annotated_image,
-          hand_landmarks_proto,
-          solutions.hands.HAND_CONNECTIONS,
-          solutions.drawing_styles.get_default_hand_landmarks_style(),
-          solutions.drawing_styles.get_default_hand_connections_style())
+            
+            solutions.drawing_utils.draw_landmarks(
+              annotated_image,
+              hand_landmarks_proto,
+              solutions.hands.HAND_CONNECTIONS,
+              solutions.drawing_styles.get_default_hand_landmarks_style(),
+              solutions.drawing_styles.get_default_hand_connections_style())
 
-        # Get the top left corner of the detected hand's bounding box.
-        height, width, _ = annotated_image.shape
-        x_coordinates = [landmark.x for landmark in hand_landmarks]
-        y_coordinates = [landmark.y for landmark in hand_landmarks]
-        text_x = int(min(x_coordinates) * width)
-        text_y = int(min(y_coordinates) * height) - MARGIN
+            # Get the top left corner of the detected hand's bounding box.
+            height, width, _ = annotated_image.shape
+            x_coordinates = [landmark.x for landmark in hand_landmarks]
+            y_coordinates = [landmark.y for landmark in hand_landmarks]
+            text_x = int(min(x_coordinates) * width)
+            text_y = int(min(y_coordinates) * height) - MARGIN
 
-        # Draw handedness (left or right hand) on the image.
-        cv2.putText(annotated_image, f"{handedness[0].category_name}",
-                    (text_x, text_y), cv2.FONT_HERSHEY_DUPLEX,
-                    FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
-        cv2.flip(annotated_image, 1)
+            # Draw handedness (left or right hand) on the image.
+            cv2.putText(annotated_image, f"{handedness[0].category_name}",
+                        (text_x, text_y), cv2.FONT_HERSHEY_DUPLEX,
+                        FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
+            cv2.flip(annotated_image, 1)
 
   except Exception as e:
     print("GMHD computation failed", e)
@@ -294,12 +297,14 @@ def online_tracking(cfg):
             print("Impossible to retrieve color or depth frame from camera")
         if 0xFF == 27:
             print("Tracking interrupted!")
-            cv2.destroyAllWindows()
+            if cfg['visualize']=='yes':
+                cv2.destroyAllWindows()
             break
         # stop execution after --interval set seconds
         if  ((currentTime - startTime) > cfg['interval']):
             print("Tracking recording completed")
-            cv2.destroyAllWindows()
+            if cfg['visualize']=='yes':
+                cv2.destroyAllWindows()
             break
     if cfg['save']=='yes':
         save_tracking_data(os.path.join(cfg['outputpath'], cfg['outputname']))
