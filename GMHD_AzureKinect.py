@@ -236,8 +236,9 @@ def process_sync_tracking(detection_result: HandLandmarkerResult, bgr_image, dep
 
   except Exception as e:
     print("GMHD computation failed", e)
-  cv2.imshow('Mediapipe tracking',annotated_image)
-  cv2.waitKey(5)  # altrimenti non visualizza l'immagine
+  if cfg['save']=='yes':
+    cv2.imshow('Mediapipe tracking',annotated_image)
+    cv2.waitKey(5)  # altrimenti non visualizza l'immagine
   TRACKING_DATA.append(Frame(timestamp_ms, hands_GMHD))
 
 def online_tracking(cfg):
