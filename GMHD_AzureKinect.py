@@ -176,7 +176,7 @@ def GMHD_estimation(hand_landmarks, depth_image):
         joint_list.append(gmhd_point)
     return joint_list
 
-def process_sync_tracking(detection_result: HandLandmarkerResult, bgr_image, depth_image, timestamp_ms: int):
+def process_sync_tracking(detection_result: HandLandmarkerResult, bgr_image, depth_image, timestamp_ms: int, cfg):
   """
 
   :param detection_result: HandLandmarkerResult object from MediaPipe inference
@@ -284,7 +284,7 @@ def online_tracking(cfg):
             # STEP 4: Detect hand landmarks from the input image.
             detection_result=detector.detect_for_video(mp_image, color_timestamp)
             currentTime = time.time()
-            process_sync_tracking(detection_result, img_color, depth_image, color_timestamp)
+            process_sync_tracking(detection_result, img_color, depth_image, color_timestamp, cfg)
             if (previousTime_FPS > 0):
               # Calculating the fps
               fps = (1 / (color_timestamp - previousTime_FPS))*1e6
@@ -367,7 +367,7 @@ def offline_tracking(cfg):
                 # STEP 4: Detect hand landmarks from the input image.
                 detection_result = detector.detect_for_video(mp_image, color_timestamp)
                 currentTime = time.time()
-                process_sync_tracking(detection_result, img_color, depth_image, color_timestamp)
+                process_sync_tracking(detection_result, img_color, depth_image, color_timestamp, cfg)
                 if (previousTime_FPS > 0):
                     # Calculating the fps
                     fps = (1 / (color_timestamp - previousTime_FPS)) * 1e6
